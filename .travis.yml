@@ -1,0 +1,25 @@
+jobs:
+  include:
+    - language: bash
+      os: windows
+    - language: java
+      jdk: openjdk11
+      os: osx
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install openjdk11 -y ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ];     then chmod +x gradlew           ; fi
+
+script: ./gradlew check --scan
+
+cache:
+  directories:
+    - $HOME/.gradle/
+    - $HOME/.konan/
+
+deploy:
+  provider: script
+  script: ./gradlew bintrayUpload
+  skip_cleanup: true
+  on:
+    branch: release
