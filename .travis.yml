@@ -8,7 +8,7 @@ jobs:
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then travis_retry choco install openjdk11 -y ; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then refreshenv                              ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco refreshenv                              ; fi
 
 before_script:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then chmod +x gradlew; fi
