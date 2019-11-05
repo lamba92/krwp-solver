@@ -1,1 +1,0 @@
-choco install openjdk11 -y
