@@ -2,12 +2,7 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.KonanTarget.MINGW_X64
-import org.jetbrains.kotlin.konan.target.KonanTarget.MINGW_X86
 
 plugins {
     kotlin("multiplatform") version "1.3.50"
@@ -36,9 +31,6 @@ kotlin {
     iosArm32("ios-arm32")
     iosX64("ios-x64")
     macosX64("macos-x64")
-
-    windowsTargets publishOnlyOn OS.WINDOWS
-    allButWindowsTargets publishOnlyOn OS.MAC
 
     val coroutinesVersion = "1.3.2"
 
@@ -90,12 +82,6 @@ fun searchProperty(name: String) =
         null
     }
 
-publishing {
-    publications.named<MavenPublication>("kotlinMultiplatform") {
-        publishOnlyOn(OS.MAC)
-    }
-}
-
 bintray {
     user = searchProperty("bintrayUsername")
     key = searchProperty("bintrayApiKey")
@@ -109,13 +95,11 @@ bintray {
         vcsUrl = "https://github.com/lamba92/krwp-solver"
         issueTrackerUrl = "https://github.com/lamba92/krwp-solver/issues"
     }
-    setPublications(
-        *publishing.publications.withType<MavenPublication>()
-            .filter { it.publicationTasks.all { it.isEnabled } }
-            .map { it.name }
-            .toTypedArray()
-    )
     publish = true
+    if (OperatingSystem.current().isMacOsX)
+        setPublications("js", "jvm", "kotlinMultiplatform", "linux-x64", "metadata")
+    else if (OperatingSystem.current().isWindows)
+        setPublications("windows-x64")
 }
 
 @Suppress("unused")
@@ -127,32 +111,3 @@ fun BintrayExtension.pkg(action: BintrayExtension.PackageConfig.() -> Unit) =
 
 fun BintrayExtension.PackageConfig.version(action: BintrayExtension.VersionConfig.() -> Unit) =
     version(closureOf(action))
-
-val KotlinMultiplatformExtension.allButWindowsTargets
-    get() = targets - windowsTargets
-
-val KotlinMultiplatformExtension.windowsTargets
-    get() = targets.filterIsInstance<KotlinNativeTarget>()
-        .filter { it.konanTarget == MINGW_X86 || it.konanTarget == MINGW_X64 }
-
-infix fun Iterable<KotlinTarget>.publishOnlyOn(os: OS) = configure(this) {
-    mavenPublication { publishOnlyOn(os) }
-}
-
-enum class OS {
-    LINUX, MAC, WINDOWS
-}
-
-val MavenPublication.publicationTasks
-    get() = tasks.withType<AbstractPublishToMaven>()
-        .filter { it.publication == this }
-
-fun MavenPublication.publishOnlyOn(os: OS) = publicationTasks.forEach {
-    it.onlyIf {
-        when (os) {
-            OS.LINUX -> OperatingSystem.current().isLinux
-            OS.MAC -> OperatingSystem.current().isMacOsX
-            OS.WINDOWS -> OperatingSystem.current().isWindows
-        }
-    }
-}
