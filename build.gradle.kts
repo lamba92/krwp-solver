@@ -13,7 +13,7 @@ repositories {
     jcenter()
 }
 group = "com.github.lamba92"
-version = "0.0.2"
+version = System.getenv("TRAVIS_TAG") ?: "0.0.1"
 
 kotlin {
     jvm()
