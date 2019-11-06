@@ -97,7 +97,17 @@ bintray {
     }
     publish = true
     if (OperatingSystem.current().isMacOsX)
-        setPublications("js", "jvm", "kotlinMultiplatform", "linux-x64", "metadata")
+        setPublications(
+            "js",
+            "jvm",
+            "kotlinMultiplatform",
+            "linux-x64",
+            "metadata",
+            "ios-x64",
+            "ios-arm32",
+            "ios-arm64",
+            "macos-x64"
+        )
     else if (OperatingSystem.current().isWindows)
         setPublications("windows-x64")
 }
