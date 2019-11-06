@@ -5,8 +5,9 @@ os:
   - windows
 
 env:
-  - GRAVIS="https://raw.githubusercontent.com/DanySK/Gravis-CI/master/"
-  - JDK="openjdk@1.11"
+  global:
+    - GRAVIS="https://raw.githubusercontent.com/DanySK/Gravis-CI/master/"
+    - JDK="openjdk@1.11"
 
 before_install:
   - travis_retry curl "${GRAVIS}.install-jdk-travis.sh" --output ~/.install-jdk-travis.sh
