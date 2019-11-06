@@ -109,7 +109,12 @@ bintray {
         vcsUrl = "https://github.com/lamba92/krwp-solver"
         issueTrackerUrl = "https://github.com/lamba92/krwp-solver/issues"
     }
-    setPublications(*publishing.publications.withType<MavenPublication>().names.toTypedArray())
+    setPublications(
+        *publishing.publications.withType<MavenPublication>()
+            .filter { it.publicationTasks.all { it.isEnabled } }
+            .map { it.name }
+            .toTypedArray()
+    )
     publish = true
 }
 
